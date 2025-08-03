@@ -168,7 +168,7 @@ export default function PgDetailsScreen({ pg }: PgDetailsProps) {
       </ScrollView>
 
       {/* Call Now Button */}
-      <View className="absolute bottom-0 left-0 right-0 bg-white pb-10 py-4 px-4">
+      <View className="absolute bottom-0 left-0 right-0 bg-white ios:pb-10 android:pb-20 py-4 px-4">
         <LinearGradient
           colors={[
             'rgba(255, 255, 255, 0)',
