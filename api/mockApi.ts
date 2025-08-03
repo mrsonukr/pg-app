@@ -1,34 +1,8 @@
-// Mock API to simulate real API calls
-// This shows how you would structure API calls for real backend integration
-
-export interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-  message?: string;
-  total?: number;
-  page?: number;
-  limit?: number;
-}
-
-export interface PgApiData {
-  id: string;
-  title: string;
-  price: string;
-  location: string;
-  images: string[];
-  facilities: string[];
-  description?: string;
-  distance?: string;
-  phone?: string;
-  owner?: string;
-  type?: 'suggestion' | 'nearest';
-}
-
 // Simulate network delay
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Mock data that would come from your backend
-const mockPgData: PgApiData[] = [
+const mockPgData = [
   {
     id: 'api_1',
     title: "Premium PG for Girls",
@@ -43,8 +17,7 @@ const mockPgData: PgApiData[] = [
     description: "Luxurious PG accommodation with modern amenities",
     distance: "2.5 km",
     phone: "+91 98765 43210",
-    owner: "Mrs. Priya Sharma",
-    type: 'suggestion'
+    owner: "Mrs. Priya Sharma"
   },
   {
     id: 'api_2',
@@ -59,8 +32,7 @@ const mockPgData: PgApiData[] = [
     description: "Comfortable and affordable PG for students",
     distance: "1.8 km",
     phone: "+91 98765 43211",
-    owner: "Mr. Rajesh Kumar",
-    type: 'suggestion'
+    owner: "Mr. Rajesh Kumar"
   },
   {
     id: 'api_3',
@@ -74,8 +46,7 @@ const mockPgData: PgApiData[] = [
     description: "Perfect for students with meal facilities",
     distance: "3.1 km",
     phone: "+91 98765 43212",
-    owner: "Mrs. Sunita Verma",
-    type: 'nearest'
+    owner: "Mrs. Sunita Verma"
   },
   {
     id: 'api_4',
@@ -91,8 +62,7 @@ const mockPgData: PgApiData[] = [
     description: "Premium accommodation with attached facilities",
     distance: "1.2 km",
     phone: "+91 98765 43213",
-    owner: "Mr. Amit Singh",
-    type: 'nearest'
+    owner: "Mr. Amit Singh"
   },
   {
     id: 'api_5',
@@ -106,8 +76,7 @@ const mockPgData: PgApiData[] = [
     description: "Affordable PG with basic amenities",
     distance: "4.5 km",
     phone: "+91 98765 43214",
-    owner: "Mrs. Reena Patel",
-    type: 'suggestion'
+    owner: "Mrs. Reena Patel"
   },
   {
     id: 'api_6',
@@ -122,15 +91,14 @@ const mockPgData: PgApiData[] = [
     description: "Premium PG designed for working professionals",
     distance: "0.8 km",
     phone: "+91 98765 43215",
-    owner: "Mr. Vikash Gupta",
-    type: 'nearest'
+    owner: "Mr. Vikash Gupta"
   }
 ];
 
 // Mock API functions that simulate real API calls
 
-export const fetchAllPgs = async (): Promise<ApiResponse<PgApiData[]>> => {
-  await delay(800); // Simulate network delay
+export const fetchAllPgs = async () => {
+  await delay(800);
   
   return {
     success: true,
@@ -139,10 +107,12 @@ export const fetchAllPgs = async (): Promise<ApiResponse<PgApiData[]>> => {
   };
 };
 
-export const fetchSuggestions = async (limit: number = 10): Promise<ApiResponse<PgApiData[]>> => {
+export const fetchSuggestions = async (limit = 3) => {
   await delay(600);
   
-  const suggestions = mockPgData.filter(pg => pg.type === 'suggestion').slice(0, limit);
+  // Get random PGs for banner/suggestions
+  const shuffled = [...mockPgData].sort(() => 0.5 - Math.random());
+  const suggestions = shuffled.slice(0, Math.min(limit, 3));
   
   return {
     success: true,
@@ -151,10 +121,11 @@ export const fetchSuggestions = async (limit: number = 10): Promise<ApiResponse<
   };
 };
 
-export const fetchNearestPgs = async (limit: number = 10): Promise<ApiResponse<PgApiData[]>> => {
+export const fetchNearestPgs = async (limit = 10) => {
   await delay(700);
   
-  const nearest = mockPgData.filter(pg => pg.type === 'nearest').slice(0, limit);
+  // Return all PGs as nearest
+  const nearest = mockPgData.slice(0, limit);
   
   return {
     success: true,
@@ -163,9 +134,32 @@ export const fetchNearestPgs = async (limit: number = 10): Promise<ApiResponse<P
   };
 };
 
-export const fetchFeaturedPgs = async (limit: number = 5): Promise<ApiResponse<PgApiData[]>> => {
-  await delay(500);
+export const searchPgs = async (query) => {
+  await delay(400);
   
-  // Get random PGs for featured section
-  const shuffled = [...mockPgData].sort(() => 0.5 - Math.random());
-  const featured = shuffled.slice(0, limit)
+  const searchTerm = query.toLowerCase();
+  const results = mockPgData.filter(pg => 
+    pg.title.toLowerCase().includes(searchTerm) ||
+    pg.location.toLowerCase().includes(searchTerm) ||
+    pg.facilities.some(facility => facility.toLowerCase().includes(searchTerm)) ||
+    (pg.description && pg.description.toLowerCase().includes(searchTerm))
+  );
+  
+  return {
+    success: true,
+    data: results,
+    total: results.length
+  };
+};
+
+export const fetchPgById = async (id) => {
+  await delay(300);
+  
+  const pg = mockPgData.find(item => item.id === id);
+  
+  return {
+    success: !!pg,
+    data: pg || null,
+    message: pg ? undefined : 'PG not found'
+  };
+};

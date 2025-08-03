@@ -11,7 +11,8 @@ import PgCard from './components/PgCard';
 import BannerSlider from './components/BannerSlider';
 import PgDetailsScreen from './components/PgDetailsScreen';
 import FilterModal, { FilterOptions } from './components/FilterModal';
-import { getSuggestions, getNearestPg, PgData } from './data/pgData';
+import { PgData } from './data/pgData';
+import { fetchSuggestions, fetchNearestPgs } from './api/mockApi';
 import './global.css';
 
 type RootStackParamList = {
@@ -31,6 +32,9 @@ function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<PgData[]>([]);
   const [showFilterModal, setShowFilterModal] = useState(false);
+  const [suggestions, setSuggestions] = useState<PgData[]>([]);
+  const [nearestPg, setNearestPg] = useState<PgData[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<FilterOptions>({
     minPrice: 0,
     maxPrice: 10000,
@@ -39,8 +43,52 @@ function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
 
   const scrollViewRef = useRef<ScrollView>(null);
 
-  const suggestions = getSuggestions();
-  const nearestPg = getNearestPg();
+  // Convert API data to PgData format
+  const convertApiToPgData = (apiData) => {
+    return apiData.map(item => ({
+      id: item.id,
+      title: item.title,
+      price: item.price,
+      location: item.location,
+      image: item.images[0] || '',
+      images: item.images,
+      facilities: item.facilities,
+      description: item.description,
+      distance: item.distance,
+      phone: item.phone,
+      owner: item.owner
+    }));
+  };
+
+  // Load data from API
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch data from API
+        const [suggestionsResponse, nearestResponse] = await Promise.all([
+          fetchSuggestions(),
+          fetchNearestPgs()
+        ]);
+
+        if (suggestionsResponse.success) {
+          setSuggestions(convertApiToPgData(suggestionsResponse.data));
+        }
+
+        if (nearestResponse.success) {
+          setNearestPg(convertApiToPgData(nearestResponse.data));
+        }
+      } catch (error) {
+        console.error('Error loading data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
   const allData = [...suggestions, ...nearestPg];
 
   // Apply filters function
@@ -125,8 +173,8 @@ function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
   const getDisplayData = () => {
     if (isSearching) {
       return { 
-        suggestions: searchResults.filter(pg => pg.type === 'suggestion'),
-        nearest: searchResults.filter(pg => pg.type === 'nearest') 
+        suggestions: searchResults.slice(0, 3), // First 3 for banner
+        nearest: searchResults // All for nearest section
       };
     }
     
@@ -139,6 +187,15 @@ function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
   const displayData = getDisplayData();
 
   const hasActiveFilters = filters.minPrice > 0 || filters.maxPrice < 10000 || filters.selectedFacilities.length > 0;
+
+  // Show loading state
+  if (loading) {
+    return (
+      <View className="flex-1 bg-[#E4E2DF] justify-center items-center">
+        <Text className="text-lg text-gray-600">Loading PG data...</Text>
+      </View>
+    );
+  }
 
   const handlePgCardPress = (pg: PgData) => {
     navigation.navigate('PgDetails', { pg });
