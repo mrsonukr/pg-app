@@ -4,6 +4,7 @@ export interface PgData {
   price: string;
   location: string;
   image: string;
+  images?: string[]; // Multiple images for slider
   facilities: string[];
   description?: string;
   distance?: string;
@@ -19,6 +20,11 @@ export const suggestionsData: PgData[] = [
     price: "6500",
     location: "Sector 22, Noida",
     image: "https://mojoboutique.com/cdn/shop/articles/how_to_decorate_a_bedroom_japanese_style_1344x.jpg?v=1704393568",
+    images: [
+      "https://mojoboutique.com/cdn/shop/articles/how_to_decorate_a_bedroom_japanese_style_1344x.jpg?v=1704393568",
+      "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg",
+      "https://images.pexels.com/photos/1743229/pexels-photo-1743229.jpeg"
+    ],
     facilities: ['AC', 'WiFi', 'Laundry'],
     description: "Luxurious PG accommodation with modern amenities",
     distance: "2.5 km",
@@ -32,6 +38,10 @@ export const suggestionsData: PgData[] = [
     price: "7200",
     location: "Vijay Nagar, Delhi",
     image: "https://mojoboutique.com/cdn/shop/articles/how_to_decorate_a_bedroom_japanese_style_1344x.jpg?v=1704393568",
+    images: [
+      "https://mojoboutique.com/cdn/shop/articles/how_to_decorate_a_bedroom_japanese_style_1344x.jpg?v=1704393568",
+      "https://images.pexels.com/photos/2029667/pexels-photo-2029667.jpeg"
+    ],
     facilities: ['Geyser', 'WiFi'],
     description: "Comfortable and affordable PG for students",
     distance: "1.8 km",
@@ -45,6 +55,9 @@ export const suggestionsData: PgData[] = [
     price: "6800",
     location: "Indira Nagar, Lucknow",
     image: "https://mojoboutique.com/cdn/shop/articles/how_to_decorate_a_bedroom_japanese_style_1344x.jpg?v=1704393568",
+    images: [
+      "https://mojoboutique.com/cdn/shop/articles/how_to_decorate_a_bedroom_japanese_style_1344x.jpg?v=1704393568"
+    ],
     facilities: ['2 Meals', 'AC', 'TV'],
     description: "Perfect for students with meal facilities",
     distance: "3.1 km",
@@ -58,6 +71,12 @@ export const suggestionsData: PgData[] = [
     price: "8000",
     location: "GTB Nagar, Delhi",
     image: "https://mojoboutique.com/cdn/shop/articles/how_to_decorate_a_bedroom_japanese_style_1344x.jpg?v=1704393568",
+    images: [
+      "https://mojoboutique.com/cdn/shop/articles/how_to_decorate_a_bedroom_japanese_style_1344x.jpg?v=1704393568",
+      "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg",
+      "https://images.pexels.com/photos/1743229/pexels-photo-1743229.jpeg",
+      "https://images.pexels.com/photos/2029667/pexels-photo-2029667.jpeg"
+    ],
     facilities: ['Attached Washroom', 'Laundry'],
     description: "Premium accommodation with attached facilities",
     distance: "1.2 km",
@@ -71,6 +90,10 @@ export const suggestionsData: PgData[] = [
     price: "5500",
     location: "Dwarka, Delhi",
     image: "https://mojoboutique.com/cdn/shop/articles/how_to_decorate_a_bedroom_japanese_style_1344x.jpg?v=1704393568",
+    images: [
+      "https://mojoboutique.com/cdn/shop/articles/how_to_decorate_a_bedroom_japanese_style_1344x.jpg?v=1704393568",
+      "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg"
+    ],
     facilities: ['WiFi', 'Food'],
     description: "Affordable PG with basic amenities",
     distance: "4.5 km",
@@ -87,6 +110,11 @@ export const nearestPgData: PgData[] = [
     price: "6500",
     location: "Sector 22, Noida",
     image: "https://mojoboutique.com/cdn/shop/articles/how_to_decorate_a_bedroom_japanese_style_1344x.jpg?v=1704393568",
+    images: [
+      "https://mojoboutique.com/cdn/shop/articles/how_to_decorate_a_bedroom_japanese_style_1344x.jpg?v=1704393568",
+      "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg",
+      "https://images.pexels.com/photos/1743229/pexels-photo-1743229.jpeg"
+    ],
     facilities: ['AC', 'WiFi', 'Laundry'],
     description: "Luxurious PG accommodation with modern amenities",
     distance: "0.8 km",
@@ -100,6 +128,9 @@ export const nearestPgData: PgData[] = [
     price: "7200",
     location: "Vijay Nagar, Delhi",
     image: "https://mojoboutique.com/cdn/shop/articles/how_to_decorate_a_bedroom_japanese_style_1344x.jpg?v=1704393568",
+    images: [
+      "https://mojoboutique.com/cdn/shop/articles/how_to_decorate_a_bedroom_japanese_style_1344x.jpg?v=1704393568"
+    ],
     facilities: ['Geyser', 'WiFi'],
     description: "Comfortable and affordable PG for students",
     distance: "1.1 km",
@@ -113,6 +144,10 @@ export const nearestPgData: PgData[] = [
     price: "6800",
     location: "Indira Nagar, Lucknow",
     image: "https://mojoboutique.com/cdn/shop/articles/how_to_decorate_a_bedroom_japanese_style_1344x.jpg?v=1704393568",
+    images: [
+      "https://mojoboutique.com/cdn/shop/articles/how_to_decorate_a_bedroom_japanese_style_1344x.jpg?v=1704393568",
+      "https://images.pexels.com/photos/2029667/pexels-photo-2029667.jpeg"
+    ],
     facilities: ['2 Meals', 'AC', 'TV'],
     description: "Perfect for students with meal facilities",
     distance: "1.5 km",
@@ -126,6 +161,12 @@ export const nearestPgData: PgData[] = [
     price: "8000",
     location: "GTB Nagar, Delhi",
     image: "https://mojoboutique.com/cdn/shop/articles/how_to_decorate_a_bedroom_japanese_style_1344x.jpg?v=1704393568",
+    images: [
+      "https://mojoboutique.com/cdn/shop/articles/how_to_decorate_a_bedroom_japanese_style_1344x.jpg?v=1704393568",
+      "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg",
+      "https://images.pexels.com/photos/1743229/pexels-photo-1743229.jpeg",
+      "https://images.pexels.com/photos/2029667/pexels-photo-2029667.jpeg"
+    ],
     facilities: ['Attached Washroom', 'Laundry'],
     description: "Premium accommodation with attached facilities",
     distance: "0.5 km",

@@ -1,12 +1,10 @@
 import 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React, { useState, useRef } from 'react';
 import { SafeAreaView, View, ScrollView, Text, TouchableOpacity } from 'react-native';
-import { useState, useRef } from 'react';
+import { NavigationContainer,RouteProp } from '@react-navigation/native';
+import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RouteProp } from '@react-navigation/native';
 
 import SearchBar from './components/SearchBar';
 import PgCard from './components/PgCard';
@@ -53,6 +51,7 @@ function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
       price: bannerItem.price,
       location: bannerItem.location,
       image: bannerItem.image,
+      images: bannerItem.images,
       facilities: bannerItem.facilities,
       description: bannerItem.subtitle,
       distance: '2.5 km',
@@ -72,6 +71,7 @@ function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
     price: item.price,
     location: item.location,
     image: item.image,
+    images: item.images,
     facilities: item.facilities
   }));
 
@@ -153,25 +153,8 @@ function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
 function DetailsScreen({ route, navigation }: { route: DetailsScreenRouteProp; navigation: DetailsScreenNavigationProp }) {
   const { pg } = route.params;
 
-  const handleBookNow = () => {
-    console.log('Booking PG:', pg.title);
-    // Add your booking logic here
-  };
-
   return (
-    <PgDetailsScreen
-      id={pg.id}
-      title={pg.title}
-      price={pg.price}
-      location={pg.location}
-      image={pg.image}
-      facilities={pg.facilities}
-      description={pg.description}
-      distance={pg.distance}
-      phone={pg.phone}
-      owner={pg.owner}
-      onBookNow={handleBookNow}
-    />
+    <PgDetailsScreen pg={pg} />
   );
 }
 
