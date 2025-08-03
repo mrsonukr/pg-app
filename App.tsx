@@ -27,11 +27,37 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 // Home Screen Component
 function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
   const [searchText, setSearchText] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState<PgData[]>([]);
   const scrollViewRef = useRef<ScrollView>(null);
 
   const handleSearch = (text: string) => {
     console.log('Searching for:', text);
-    // Add your search logic here
+    if (text.trim() === '') {
+      setIsSearching(false);
+      setSearchResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+    
+    // Search in all PG data
+    const allData = [...suggestions, ...nearestPg];
+    const results = allData.filter(pg => 
+      pg.title.toLowerCase().includes(text.toLowerCase()) ||
+      pg.location.toLowerCase().includes(text.toLowerCase()) ||
+      pg.facilities.some(facility => facility.toLowerCase().includes(text.toLowerCase()))
+    );
+    
+    setSearchResults(results);
+  };
+
+  const handleSearchTextChange = (text: string) => {
+    setSearchText(text);
+    if (text.trim() === '') {
+      setIsSearching(false);
+      setSearchResults([]);
+    }
   };
 
   const handleFilterPress = () => {
@@ -111,39 +137,79 @@ function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
         className="flex-1"
         contentContainerStyle={{ paddingTop: 10 }}
       >
-        {/* Banner Slider Section */}
-        <View className="mt-4">
-          <Text className="text-lg font-bold text-black px-4 mb-3">Featured PGs</Text>
-          <BannerSlider 
-            data={bannerData}
-            autoScroll={true}
-            scrollInterval={4000}
-            onBannerPress={handleBannerPress}
-          />
-        </View>
-
-        {/* Nearest PG Available section */}
-        <View className="mt-6 pb-6">
-          <Text className="text-lg font-bold text-black px-4 mb-3">Nearest PG Available</Text>
-          <View className="flex-row flex-wrap justify-between px-4">
-            {nearestPg.map((item, index) => (
-              <TouchableOpacity
-                key={item.id}
-                onPress={() => handlePgCardPress(item)}
-                style={{ width: '48%' }}
-                activeOpacity={0.9}
-              >
-                <PgCard
-                  image={item.image}
-                  title={item.title}
-                  price={item.price}
-                  location={item.location}
-                  facilities={item.facilities}
-                />
-              </TouchableOpacity>
-            ))}
+        {isSearching ? (
+          /* Search Results */
+          <View className="mt-4 pb-6">
+            <Text className="text-lg font-bold text-black px-4 mb-3">
+              Search Results ({searchResults.length})
+            </Text>
+            {searchResults.length > 0 ? (
+              <View className="flex-row flex-wrap justify-between px-4">
+                {searchResults.map((item) => (
+                  <TouchableOpacity
+                    key={item.id}
+                    onPress={() => handlePgCardPress(item)}
+                    style={{ width: '48%' }}
+                    activeOpacity={0.9}
+                  >
+                    <PgCard
+                      image={item.image}
+                      title={item.title}
+                      price={item.price}
+                      location={item.location}
+                      facilities={item.facilities}
+                    />
+                  </TouchableOpacity>
+                ))}
+              </View>
+            ) : (
+              <View className="px-4 py-8 items-center">
+                <Text className="text-gray-500 text-center mt-4 text-base">
+                  No PGs found for "{searchText}"
+                </Text>
+                <Text className="text-gray-400 text-center mt-2 text-sm">
+                  Try searching with different keywords
+                </Text>
+              </View>
+            )}
           </View>
-        </View>
+        ) : (
+          <>
+            {/* Banner Slider Section */}
+            <View className="mt-4">
+              <Text className="text-lg font-bold text-black px-4 mb-3">Featured PGs</Text>
+              <BannerSlider 
+                data={bannerData}
+                autoScroll={true}
+                scrollInterval={4000}
+                onBannerPress={handleBannerPress}
+              />
+            </View>
+
+            {/* Nearest PG Available section */}
+            <View className="mt-6 pb-6">
+              <Text className="text-lg font-bold text-black px-4 mb-3">Nearest PG Available</Text>
+              <View className="flex-row flex-wrap justify-between px-4">
+                {nearestPg.map((item, index) => (
+                  <TouchableOpacity
+                    key={item.id}
+                    onPress={() => handlePgCardPress(item)}
+                    style={{ width: '48%' }}
+                    activeOpacity={0.9}
+                  >
+                    <PgCard
+                      image={item.image}
+                      title={item.title}
+                      price={item.price}
+                      location={item.location}
+                      facilities={item.facilities}
+                    />
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          </>
+        )}
       </ScrollView>
     </View>
   );
