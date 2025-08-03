@@ -1,6 +1,7 @@
-import { View, Text, Image, ViewStyle } from 'react-native';
+import { View, Text, ViewStyle } from 'react-native';
 import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
+import CachedImage from './CachedImage';
 
 interface PgCardProps {
   image: string;
@@ -16,9 +17,9 @@ const PgCard = ({ image, price, location, title, facilities, style }: PgCardProp
     <View className="bg-white rounded-2xl overflow-hidden shadow-md mb-4" style={style}>
       {/* Image with location overlay */}
       <View className="relative">
-        <Image
+        <CachedImage
           source={{ uri: image }}
-          className="w-full h-36"
+          style={{ width: '100%', height: 144 }}
           resizeMode="cover"
         />
         {/* Location overlay on top of image */}

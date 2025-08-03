@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Dimensions, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, Text, Dimensions, TouchableOpacity, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import CachedImage from './CachedImage';
 
 const { width } = Dimensions.get('window');
 
@@ -61,13 +62,13 @@ export default function BannerSlider({
     >
       <View className="mx-4 h-56 rounded-2xl overflow-hidden shadow-lg relative">
         {/* Full Banner Image */}
-        <Image
+        <CachedImage
           source={{ uri: item.image }}
           style={{
             width: '100%',
             height: '100%',
-            resizeMode: 'cover',
           }}
+          resizeMode="cover"
         />
 
         {/* Gradient Overlay for Text Readability */}

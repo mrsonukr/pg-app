@@ -1,9 +1,12 @@
 import React from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity, Dimensions, Linking } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Dimensions, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
+import CachedImage from './CachedImage';
 const { width } = Dimensions.get('window');
+import { StatusBar } from 'expo-status-bar';
+
 
 interface PgDetailsProps {
   id: string;
@@ -16,7 +19,6 @@ interface PgDetailsProps {
   distance?: string;
   phone?: string;
   owner?: string;
-  onBack: () => void;
   onBookNow: () => void;
 }
 
@@ -31,7 +33,6 @@ export default function PgDetailsScreen({
   distance,
   phone,
   owner,
-  onBack,
   onBookNow
 }: PgDetailsProps) {
   const handleCall = () => {
@@ -42,31 +43,18 @@ export default function PgDetailsScreen({
 
   return (
     <View className="flex-1 bg-white">
+      <StatusBar hidden />
 
       {/* Header with Image */}
       <View className="relative h-80">
-        <Image
+        <CachedImage
           source={{ uri: image }}
           style={{
             width: '100%',
             height: '100%',
-            resizeMode: 'cover',
           }}
+          resizeMode="cover"
         />
-
-
-        {/* Back Button */}
-        <TouchableOpacity
-          onPress={onBack}
-          className="absolute top-12 left-4 bg-[#E4E2DF] rounded-full p-3"
-        >
-          <Ionicons name="arrow-back" size={20} color="black" />
-        </TouchableOpacity>
-
-        {/* Heart Icon */}
-        <TouchableOpacity className="absolute top-12 right-4 bg-[#E4E2DF] rounded-full p-3 ">
-          <Ionicons name="heart-outline" size={20} color="black" />
-        </TouchableOpacity>
       </View>
 
       {/* Content */}

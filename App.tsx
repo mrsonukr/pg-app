@@ -1,7 +1,12 @@
+import 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaView, View, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { useState, useRef } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RouteProp } from '@react-navigation/native';
 
 import SearchBar from './components/SearchBar';
 import PgCard from './components/PgCard';
@@ -10,9 +15,20 @@ import PgDetailsScreen from './components/PgDetailsScreen';
 import { getSuggestions, getNearestPg, PgData } from './data/pgData';
 import './global.css';
 
-export default function App() {
+type RootStackParamList = {
+  Home: undefined;
+  PgDetails: { pg: PgData };
+};
+
+type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
+type DetailsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'PgDetails'>;
+type DetailsScreenRouteProp = RouteProp<RootStackParamList, 'PgDetails'>;
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+// Home Screen Component
+function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
   const [searchText, setSearchText] = useState('');
-  const [selectedPg, setSelectedPg] = useState<PgData | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
 
   const handleSearch = (text: string) => {
@@ -26,7 +42,7 @@ export default function App() {
   };
 
   const handlePgCardPress = (pg: PgData) => {
-    setSelectedPg(pg);
+    navigation.navigate('PgDetails', { pg });
   };
 
   const handleBannerPress = (bannerItem: any) => {
@@ -42,16 +58,7 @@ export default function App() {
       distance: '2.5 km',
       type: 'suggestion'
     };
-    setSelectedPg(pgData);
-  };
-
-  const handleBackPress = () => {
-    setSelectedPg(null);
-  };
-
-  const handleBookNow = () => {
-    console.log('Booking PG:', selectedPg?.title);
-    // Add your booking logic here
+    navigation.navigate('PgDetails', { pg: pgData });
   };
 
   const suggestions = getSuggestions();
@@ -67,26 +74,6 @@ export default function App() {
     image: item.image,
     facilities: item.facilities
   }));
-
-  // Show details screen if a PG is selected
-  if (selectedPg) {
-    return (
-      <PgDetailsScreen
-        id={selectedPg.id}
-        title={selectedPg.title}
-        price={selectedPg.price}
-        location={selectedPg.location}
-        image={selectedPg.image}
-        facilities={selectedPg.facilities}
-        description={selectedPg.description}
-        distance={selectedPg.distance}
-        phone={selectedPg.phone}
-        owner={selectedPg.owner}
-        onBack={handleBackPress}
-        onBookNow={handleBookNow}
-      />
-    );
-  }
 
   return (
     <View className="flex-1 bg-[#E4E2DF]">
@@ -159,5 +146,48 @@ export default function App() {
         </View>
       </ScrollView>
     </View>
+  );
+}
+
+// Details Screen Component
+function DetailsScreen({ route, navigation }: { route: DetailsScreenRouteProp; navigation: DetailsScreenNavigationProp }) {
+  const { pg } = route.params;
+
+  const handleBookNow = () => {
+    console.log('Booking PG:', pg.title);
+    // Add your booking logic here
+  };
+
+  return (
+    <PgDetailsScreen
+      id={pg.id}
+      title={pg.title}
+      price={pg.price}
+      location={pg.location}
+      image={pg.image}
+      facilities={pg.facilities}
+      description={pg.description}
+      distance={pg.distance}
+      phone={pg.phone}
+      owner={pg.owner}
+      onBookNow={handleBookNow}
+    />
+  );
+}
+
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator
+        initialRouteName="Home"
+        screenOptions={{
+          headerShown: false,
+          animation: 'slide_from_right',
+        }}
+      >
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="PgDetails" component={DetailsScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
