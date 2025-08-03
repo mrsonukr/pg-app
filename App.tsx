@@ -1,8 +1,8 @@
 import 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { SafeAreaView, View, ScrollView, Text, TouchableOpacity } from 'react-native';
-import { NavigationContainer,RouteProp } from '@react-navigation/native';
+import { NavigationContainer, RouteProp } from '@react-navigation/native';
 import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -10,6 +10,7 @@ import SearchBar from './components/SearchBar';
 import PgCard from './components/PgCard';
 import BannerSlider from './components/BannerSlider';
 import PgDetailsScreen from './components/PgDetailsScreen';
+import FilterModal, { FilterOptions } from './components/FilterModal';
 import { getSuggestions, getNearestPg, PgData } from './data/pgData';
 import './global.css';
 
@@ -29,10 +30,49 @@ function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
   const [searchText, setSearchText] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<PgData[]>([]);
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [filters, setFilters] = useState<FilterOptions>({
+    minPrice: 0,
+    maxPrice: 10000,
+    selectedFacilities: []
+  });
+
   const scrollViewRef = useRef<ScrollView>(null);
 
+  const suggestions = getSuggestions();
+  const nearestPg = getNearestPg();
+  const allData = [...suggestions, ...nearestPg];
+
+  // Apply filters function
+  const applyFilters = (data: PgData[]) => {
+    let filtered = data.filter(pg => {
+      const price = parseInt(pg.price);
+      
+      // Price range filter
+      if (price < filters.minPrice || price > filters.maxPrice) {
+        return false;
+      }
+      
+      // Facilities filter
+      if (filters.selectedFacilities.length > 0) {
+        const hasRequiredFacilities = filters.selectedFacilities.every(facility =>
+          pg.facilities.includes(facility)
+        );
+        if (!hasRequiredFacilities) {
+          return false;
+        }
+      }
+      
+      return true;
+    });
+
+    return filtered;
+  };
+
+  // Enhanced search function with live search
   const handleSearch = (text: string) => {
-    console.log('Searching for:', text);
+    setSearchText(text);
+    
     if (text.trim() === '') {
       setIsSearching(false);
       setSearchResults([]);
@@ -41,29 +81,64 @@ function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
 
     setIsSearching(true);
     
-    // Search in all PG data
-    const allData = [...suggestions, ...nearestPg];
-    const results = allData.filter(pg => 
-      pg.title.toLowerCase().includes(text.toLowerCase()) ||
-      pg.location.toLowerCase().includes(text.toLowerCase()) ||
-      pg.facilities.some(facility => facility.toLowerCase().includes(text.toLowerCase()))
-    );
+    // Enhanced search across multiple fields
+    const results = allData.filter(pg => {
+      const searchTerm = text.toLowerCase();
+      return (
+        // Search in title/name
+        pg.title.toLowerCase().includes(searchTerm) ||
+        // Search in location
+        pg.location.toLowerCase().includes(searchTerm) ||
+        // Search in facilities
+        pg.facilities.some(facility => facility.toLowerCase().includes(searchTerm)) ||
+        // Search in description
+        (pg.description && pg.description.toLowerCase().includes(searchTerm)) ||
+        // Search in owner name
+        (pg.owner && pg.owner.toLowerCase().includes(searchTerm)) ||
+        // Search in price
+        pg.price.includes(searchTerm)
+      );
+    });
     
-    setSearchResults(results);
+    // Apply current filters to search results
+    const filteredResults = applyFilters(results);
+    setSearchResults(filteredResults);
   };
 
-  const handleSearchTextChange = (text: string) => {
-    setSearchText(text);
-    if (text.trim() === '') {
-      setIsSearching(false);
-      setSearchResults([]);
+  // Update filtered data when filters change
+  useEffect(() => {
+    // If currently searching, re-apply search with new filters
+    if (isSearching && searchText.trim() !== '') {
+      handleSearch(searchText);
     }
+  }, [filters]);
+
+  const handleApplyFilters = (newFilters: FilterOptions) => {
+    setFilters(newFilters);
   };
 
   const handleFilterPress = () => {
-    console.log('Filter button pressed');
-    // Add your filter logic here
+    setShowFilterModal(true);
   };
+
+  // Get data to display based on current state
+  const getDisplayData = () => {
+    if (isSearching) {
+      return { 
+        suggestions: searchResults.filter(pg => pg.type === 'suggestion'),
+        nearest: searchResults.filter(pg => pg.type === 'nearest') 
+      };
+    }
+    
+    const filteredSuggestions = applyFilters(suggestions);
+    const filteredNearest = applyFilters(nearestPg);
+    
+    return { suggestions: filteredSuggestions, nearest: filteredNearest };
+  };
+
+  const displayData = getDisplayData();
+
+  const hasActiveFilters = filters.minPrice > 0 || filters.maxPrice < 10000 || filters.selectedFacilities.length > 0;
 
   const handlePgCardPress = (pg: PgData) => {
     navigation.navigate('PgDetails', { pg });
@@ -86,11 +161,8 @@ function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
     navigation.navigate('PgDetails', { pg: pgData });
   };
 
-  const suggestions = getSuggestions();
-  const nearestPg = getNearestPg();
-
   // Transform suggestions data for banner slider
-  const bannerData = suggestions.map(item => ({
+  const bannerData = displayData.suggestions.map(item => ({
     id: item.id,
     title: item.title,
     subtitle: item.description || '',
@@ -110,9 +182,10 @@ function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
       <View className="relative z-20">
         <SearchBar
           value={searchText}
-          onChangeText={setSearchText}
+          onChangeText={handleSearch}
           onSearch={handleSearch}
           onFilterPress={handleFilterPress}
+          filterButtonStyle={hasActiveFilters ? { backgroundColor: '#ccc' } : {}}
         />
         
         {/* Additional fade overlay for better visibility */}
@@ -141,7 +214,7 @@ function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
           /* Search Results */
           <View className="mt-4 pb-6">
             <Text className="text-lg font-bold text-black px-4 mb-3">
-              Search Results ({searchResults.length})
+              Search Results ({searchResults.length}) {hasActiveFilters && '(Filtered)'}
             </Text>
             {searchResults.length > 0 ? (
               <View className="flex-row flex-wrap justify-between px-4">
@@ -177,40 +250,68 @@ function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
           <>
             {/* Banner Slider Section */}
             <View className="mt-4">
-              <Text className="text-lg font-bold text-black px-4 mb-3">Featured PGs</Text>
-              <BannerSlider 
-                data={bannerData}
-                autoScroll={true}
-                scrollInterval={4000}
-                onBannerPress={handleBannerPress}
-              />
+              <Text className="text-lg font-bold text-black px-4 mb-3">
+                Featured PGs {hasActiveFilters && '(Filtered)'}
+              </Text>
+              {displayData.suggestions.length > 0 ? (
+                <BannerSlider 
+                  data={bannerData}
+                  autoScroll={true}
+                  scrollInterval={4000}
+                  onBannerPress={handleBannerPress}
+                />
+              ) : (
+                <View className="px-4 py-8 items-center">
+                  <Text className="text-gray-500 text-center text-base">
+                    No featured PGs match your filters
+                  </Text>
+                </View>
+              )}
             </View>
 
             {/* Nearest PG Available section */}
             <View className="mt-6 pb-6">
-              <Text className="text-lg font-bold text-black px-4 mb-3">Nearest PG Available</Text>
-              <View className="flex-row flex-wrap justify-between px-4">
-                {nearestPg.map((item, index) => (
-                  <TouchableOpacity
-                    key={item.id}
-                    onPress={() => handlePgCardPress(item)}
-                    style={{ width: '48%' }}
-                    activeOpacity={0.9}
-                  >
-                    <PgCard
-                      image={item.image}
-                      title={item.title}
-                      price={item.price}
-                      location={item.location}
-                      facilities={item.facilities}
-                    />
-                  </TouchableOpacity>
-                ))}
-              </View>
+              <Text className="text-lg font-bold text-black px-4 mb-3">
+                Nearest PG Available {hasActiveFilters && '(Filtered)'}
+              </Text>
+              {displayData.nearest.length > 0 ? (
+                <View className="flex-row flex-wrap justify-between px-4">
+                  {displayData.nearest.map((item) => (
+                    <TouchableOpacity
+                      key={item.id}
+                      onPress={() => handlePgCardPress(item)}
+                      style={{ width: '48%' }}
+                      activeOpacity={0.9}
+                    >
+                      <PgCard
+                        image={item.image}
+                        title={item.title}
+                        price={item.price}
+                        location={item.location}
+                        facilities={item.facilities}
+                      />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ) : (
+                <View className="px-4 py-8 items-center">
+                  <Text className="text-gray-500 text-center text-base">
+                    No nearby PGs match your filters
+                  </Text>
+                </View>
+              )}
             </View>
           </>
         )}
       </ScrollView>
+
+      {/* Filter Modal */}
+      <FilterModal
+        visible={showFilterModal}
+        onClose={() => setShowFilterModal(false)}
+        onApplyFilters={handleApplyFilters}
+        currentFilters={filters}
+      />
     </View>
   );
 }

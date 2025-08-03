@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 import { TextInput as PaperInput } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -10,6 +10,7 @@ interface SearchBarProps {
   onFilterPress?: () => void;
   value?: string;
   onChangeText?: (text: string) => void;
+  filterButtonStyle?: object;
 }
 
 export default function SearchBar({
@@ -18,6 +19,7 @@ export default function SearchBar({
   onFilterPress,
   value,
   onChangeText,
+  filterButtonStyle = {},
 }: SearchBarProps) {
   return (
     <View className="relative">
@@ -58,12 +60,13 @@ export default function SearchBar({
         </View>
 
         {/* Filter Icon Button */}
-        <View 
-          className="ml-4 h-14 w-14 bg-white rounded-full items-center justify-center"
-          onTouchEnd={onFilterPress}
+        <TouchableOpacity 
+          className="ml-4 h-14 w-14 rounded-full items-center justify-center"
+          style={[{ backgroundColor: 'white' }, filterButtonStyle]}
+          onPress={onFilterPress}
         >
           <Ionicons name="filter" size={26} color="black" />
-        </View>
+        </TouchableOpacity>
       </View>
 
       {/* Enhanced Fade effect at bottom of SearchBar */}
@@ -81,4 +84,4 @@ export default function SearchBar({
       />
     </View>
   );
-} 
+}
