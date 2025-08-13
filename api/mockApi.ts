@@ -97,16 +97,6 @@ const mockPgData = [
 
 // Mock API functions that simulate real API calls
 
-export const fetchAllPgs = async () => {
-  await delay(800);
-  
-  return {
-    success: true,
-    data: mockPgData,
-    total: mockPgData.length
-  };
-};
-
 export const fetchSuggestions = async (limit = 3) => {
   await delay(600);
   
@@ -131,35 +121,5 @@ export const fetchNearestPgs = async (limit = 10) => {
     success: true,
     data: nearest,
     total: nearest.length
-  };
-};
-
-export const searchPgs = async (query) => {
-  await delay(400);
-  
-  const searchTerm = query.toLowerCase();
-  const results = mockPgData.filter(pg => 
-    pg.title.toLowerCase().includes(searchTerm) ||
-    pg.location.toLowerCase().includes(searchTerm) ||
-    pg.facilities.some(facility => facility.toLowerCase().includes(searchTerm)) ||
-    (pg.description && pg.description.toLowerCase().includes(searchTerm))
-  );
-  
-  return {
-    success: true,
-    data: results,
-    total: results.length
-  };
-};
-
-export const fetchPgById = async (id) => {
-  await delay(300);
-  
-  const pg = mockPgData.find(item => item.id === id);
-  
-  return {
-    success: !!pg,
-    data: pg || null,
-    message: pg ? undefined : 'PG not found'
   };
 };
