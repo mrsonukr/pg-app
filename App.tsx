@@ -53,19 +53,23 @@ function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
   const scrollViewRef = useRef<ScrollView>(null);
 
   // Convert API data to PgData format
-  const convertApiToPgData = (apiData) => {
+  const convertApiToPgData = (apiData: any[]) => {
+    if (!Array.isArray(apiData)) {
+      return [];
+    }
+    
     return apiData.map(item => ({
-      id: item.id,
-      title: item.title,
-      price: item.price,
-      location: item.location,
-      image: item.images[0] || '',
-      images: item.images,
-      facilities: item.facilities,
-      description: item.description,
-      distance: item.distance,
-      phone: item.phone,
-      owner: item.owner
+      id: item.id || '',
+      title: item.title || 'PG Accommodation',
+      price: item.price || '0',
+      location: item.location || 'Location not available',
+      image: Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : '',
+      images: Array.isArray(item.images) ? item.images : [],
+      facilities: Array.isArray(item.facilities) ? item.facilities : [],
+      description: item.description || 'No description available',
+      distance: item.distance || 'Distance not available',
+      phone: item.phone || '',
+      owner: item.owner || ''
     }));
   };
 

@@ -2,9 +2,14 @@
 const API_BASE_URL = 'https://pgapp.mssonukr.workers.dev';
 
 // Helper function to parse JSON strings from API response
-const parseJsonString = (jsonString: string) => {
+const parseJsonString = (jsonString: string | null | undefined) => {
+  if (!jsonString || typeof jsonString !== 'string') {
+    return [];
+  }
+  
   try {
-    return JSON.parse(jsonString);
+    const parsed = JSON.parse(jsonString);
+    return Array.isArray(parsed) ? parsed : [];
   } catch (error) {
     console.error('Error parsing JSON string:', error);
     return [];
@@ -14,16 +19,16 @@ const parseJsonString = (jsonString: string) => {
 // Transform API data to match app's expected format
 const transformPgData = (apiData: any) => {
   return {
-    id: apiData.id,
-    title: apiData.title,
-    price: apiData.price.toString(),
-    location: apiData.location,
+    id: apiData.id || '',
+    title: apiData.title || 'PG Accommodation',
+    price: (apiData.price || '0').toString(),
+    location: apiData.location || 'Location not available',
     images: parseJsonString(apiData.images),
     facilities: parseJsonString(apiData.facilities),
-    description: apiData.description,
-    distance: `${apiData.distance_km} km`,
-    phone: apiData.phone,
-    owner: apiData.owner
+    description: apiData.description || 'No description available',
+    distance: apiData.distance_km ? `${apiData.distance_km} km` : 'Distance not available',
+    phone: apiData.phone || '',
+    owner: apiData.owner || ''
   };
 };
 
@@ -38,6 +43,10 @@ export const fetchSuggestions = async (limit = 3) => {
     }
     
     const data = await response.json();
+    
+    if (!Array.isArray(data)) {
+      throw new Error('Invalid data format received from API');
+    }
     
     // Get random PGs for banner/suggestions
     const shuffled = [...data].sort(() => 0.5 - Math.random());
@@ -69,9 +78,13 @@ export const fetchNearestPgs = async (limit = 10) => {
     
     const data = await response.json();
     
+    if (!Array.isArray(data)) {
+      throw new Error('Invalid data format received from API');
+    }
+    
     // Return all PGs as nearest (sorted by distance)
     const nearest = data
-      .sort((a: any, b: any) => a.distance_km - b.distance_km)
+      .sort((a: any, b: any) => (a.distance_km || 0) - (b.distance_km || 0))
       .slice(0, limit);
     
     return {

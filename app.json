@@ -19,7 +19,10 @@
       "backgroundColor": "#ffffff"
     },
     "assetBundlePatterns": [
-      "**/*"
+      "assets/*",
+      "components/*",
+      "data/*",
+      "api/*"
     ],
     "ios": {
       "supportsTablet": true
@@ -29,7 +32,11 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.mrsonukr.pgfinder"
+      "package": "com.mrsonukr.pgfinder",
+      "enableProguardInReleaseBuilds": true,
+      "enableSeparateBuildPerCPUArchitecture": true,
+      "enableShrinkResourcesInReleaseBuilds": true,
+      "jsEngine": "hermes"
     },
     "extra": {
       "eas": {
