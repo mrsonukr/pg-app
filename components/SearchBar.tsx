@@ -7,19 +7,17 @@ import { LinearGradient } from 'expo-linear-gradient';
 interface SearchBarProps {
   placeholder?: string;
   onSearch?: (text: string) => void;
-  onFilterPress?: () => void;
+  onClear?: () => void;
   value?: string;
   onChangeText?: (text: string) => void;
-  filterButtonStyle?: object;
 }
 
 export default function SearchBar({
   placeholder = "Search nearest available pg",
   onSearch,
-  onFilterPress,
+  onClear,
   value,
   onChangeText,
-  filterButtonStyle = {},
 }: SearchBarProps) {
   return (
     <View className="relative">
@@ -36,7 +34,7 @@ export default function SearchBar({
             style={{
               backgroundColor: 'white',
               paddingLeft: 45,
-              paddingRight: 10,
+              paddingRight: value && value.length > 0 ? 45 : 10,
               height: 56,
               justifyContent: 'center',
               borderRadius: 999,
@@ -57,16 +55,23 @@ export default function SearchBar({
               zIndex: 1,
             }}
           />
+          
+          {/* Clear Button */}
+          {value && value.length > 0 && (
+            <TouchableOpacity
+              onPress={onClear}
+              style={{
+                position: 'absolute',
+                right: 16,
+                top: '50%',
+                transform: [{ translateY: -12 }],
+                zIndex: 1,
+              }}
+            >
+              <Ionicons name="close-circle" size={24} color="gray" />
+            </TouchableOpacity>
+          )}
         </View>
-
-        {/* Filter Icon Button */}
-        <TouchableOpacity 
-          className="ml-4 h-14 w-14 rounded-full items-center justify-center"
-          style={[{ backgroundColor: 'white' }, filterButtonStyle]}
-          onPress={onFilterPress}
-        >
-          <Ionicons name="filter" size={26} color="black" />
-        </TouchableOpacity>
       </View>
 
       {/* Enhanced Fade effect at bottom of SearchBar */}
