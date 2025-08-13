@@ -1,4 +1,5 @@
 import 'react-native-gesture-handler';
+import { enableScreens } from 'react-native-screens';
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useRef, useEffect } from 'react';
 import { SafeAreaView, View, ScrollView, Text, TouchableOpacity, Platform, Dimensions, ActivityIndicator } from 'react-native';
@@ -6,6 +7,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer, RouteProp } from '@react-navigation/native';
 import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+// Enable screens for better performance
+enableScreens();
 
 import SearchBar from './components/SearchBar';
 import PgCard from './components/PgCard';
@@ -402,17 +407,19 @@ function DetailsScreen({ route, navigation }: { route: DetailsScreenRouteProp; n
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="Home"
-        screenOptions={{
-          headerShown: false,
-          animation: 'slide_from_right',
-        }}
-      >
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="PgDetails" component={DetailsScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <Stack.Navigator
+          initialRouteName="Home"
+          screenOptions={{
+            headerShown: false,
+            animation: 'slide_from_right',
+          }}
+        >
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="PgDetails" component={DetailsScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }

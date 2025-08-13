@@ -9,7 +9,9 @@
     "experiments": {
       "tsconfigPaths": true
     },
-    "plugins": [],
+    "plugins": [
+      "react-native-screens/expo-plugin"
+    ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -33,16 +35,13 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.mrsonukr.pgfinder",
-      "enableProguardInReleaseBuilds": true,
-      "enableSeparateBuildPerCPUArchitecture": true,
-      "enableShrinkResourcesInReleaseBuilds": true,
       "jsEngine": "hermes"
     },
+    "owner": "mssonukr",
     "extra": {
       "eas": {
-        "projectId": "5f039962-b6ad-4ab5-aac9-7c2fe9109bbf"
+        "projectId": "80832043-0c66-4cd3-84a3-e141fec1d862"
       }
-    },
-    "owner": "mrsonukr"
+    }
   }
 }
