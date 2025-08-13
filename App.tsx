@@ -1,7 +1,8 @@
 import 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useRef, useEffect } from 'react';
-import { SafeAreaView, View, ScrollView, Text, TouchableOpacity } from 'react-native';
+import { SafeAreaView, View, ScrollView, Text, TouchableOpacity, Platform, Dimensions, ActivityIndicator } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer, RouteProp } from '@react-navigation/native';
 import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -11,7 +12,7 @@ import PgCard from './components/PgCard';
 import BannerSlider from './components/BannerSlider';
 import PgDetailsScreen from './components/PgDetailsScreen';
 import { PgData } from './data/pgData';
-import { fetchSuggestions, fetchNearestPgs } from './api/mockApi';
+import { fetchSuggestions, fetchNearestPgs } from './api/pgApi';
 import './global.css';
 
 type RootStackParamList = {
@@ -25,6 +26,20 @@ type DetailsScreenRouteProp = RouteProp<RootStackParamList, 'PgDetails'>;
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+// Function to detect if Android has traditional navigation bar
+const hasTraditionalNavigationBar = () => {
+  if (Platform.OS !== 'android') return false;
+  
+  const { height, width } = Dimensions.get('window');
+  const { height: screenHeight, width: screenWidth } = Dimensions.get('screen');
+  
+  // If screen dimensions don't match window dimensions, 
+  // it means there's a navigation bar taking up space
+  const hasNavigationBar = screenHeight !== height || screenWidth !== width;
+  
+  return hasNavigationBar;
+};
+
 // Home Screen Component
 function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
   const [searchText, setSearchText] = useState('');
@@ -33,6 +48,7 @@ function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
   const [suggestions, setSuggestions] = useState<PgData[]>([]);
   const [nearestPg, setNearestPg] = useState<PgData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasNavBar, setHasNavBar] = useState(hasTraditionalNavigationBar());
 
   const scrollViewRef = useRef<ScrollView>(null);
 
@@ -59,6 +75,9 @@ function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
       try {
         setLoading(true);
         
+        // Add a small delay to show the loading screen
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
         // Fetch data from API
         const [suggestionsResponse, nearestResponse] = await Promise.all([
           fetchSuggestions(),
@@ -80,6 +99,19 @@ function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
     };
 
     loadData();
+  }, []);
+
+  // Handle orientation changes and navigation bar detection
+  useEffect(() => {
+    const handleOrientationChange = () => {
+      setHasNavBar(hasTraditionalNavigationBar());
+    };
+
+    const subscription = Dimensions.addEventListener('change', handleOrientationChange);
+    
+    return () => {
+      subscription?.remove();
+    };
   }, []);
 
   const allData = [...suggestions, ...nearestPg];
@@ -133,8 +165,30 @@ function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
   // Show loading state
   if (loading) {
     return (
-      <View className="flex-1 bg-[#E4E2DF] justify-center items-center">
-        <Text className="text-lg text-gray-600">Loading PG data...</Text>
+      <View className="flex-1 bg-white justify-center items-center px-8">
+        <View className="items-center">
+          {/* Location icon with black round background */}
+          <View className="w-16 h-16 bg-black rounded-full items-center justify-center mb-6">
+            <Ionicons name="location" size={32} color="white" />
+          </View>
+          
+          <Text className="text-xl font-semibold text-gray-800 text-center mb-2">
+            Finding your nearest PGs
+          </Text>
+          
+          <Text className="text-gray-600 text-center text-base">
+            Discovering the best accommodations around you...
+          </Text>
+          
+          {/* Default platform spinner */}
+          <View className="mt-6">
+            <ActivityIndicator 
+              size="large" 
+              color="#000000" 
+              animating={true}
+            />
+          </View>
+        </View>
       </View>
     );
   }
@@ -217,7 +271,10 @@ function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
         ref={scrollViewRef}
         showsVerticalScrollIndicator={false}
         className="flex-1"
-        contentContainerStyle={{ paddingTop: 10 }}
+        contentContainerStyle={{ 
+          paddingTop: 10,
+          paddingBottom: 20
+        }}
       >
         {isSearching ? (
           /* Search Results */
@@ -313,6 +370,19 @@ function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
           </>
         )}
       </ScrollView>
+      
+      {/* White space for Android navigation bar */}
+      {hasNavBar && (
+        <View style={{ 
+          height: 50, 
+          backgroundColor: 'white',
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 10
+        }} />
+      )}
     </View>
   );
 }
