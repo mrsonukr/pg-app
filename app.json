@@ -10,7 +10,13 @@
       "tsconfigPaths": true
     },
     "plugins": [
-      "react-native-screens/expo-plugin"
+      [
+        "expo-navigation-bar",
+        {
+          "position": "absolute",
+          "backgroundColor": "#E4E2DF"
+        }
+      ]
     ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -27,7 +33,8 @@
       "api/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mrsonukr.pgfinder"
     },
     "android": {
       "adaptiveIcon": {
@@ -35,12 +42,17 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.mrsonukr.pgfinder",
-      "jsEngine": "hermes"
+      "jsEngine": "hermes",
+      "softwareKeyboardLayoutMode": "pan"
     },
     "owner": "mssonukr",
     "extra": {
       "eas": {
         "projectId": "80832043-0c66-4cd3-84a3-e141fec1d862"
+      },
+      "expo-navigation-bar": {
+        "position": "absolute",
+        "backgroundColor": "#E4E2DF"
       }
     }
   }

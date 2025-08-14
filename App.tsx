@@ -2,12 +2,13 @@ import 'react-native-gesture-handler';
 import { enableScreens } from 'react-native-screens';
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useRef, useEffect } from 'react';
-import { SafeAreaView, View, ScrollView, Text, TouchableOpacity, Platform, Dimensions, ActivityIndicator } from 'react-native';
+import { SafeAreaView, View, ScrollView, Text, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer, RouteProp } from '@react-navigation/native';
 import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import * as NavigationBar from 'expo-navigation-bar';
 
 // Enable screens for better performance
 enableScreens();
@@ -31,19 +32,7 @@ type DetailsScreenRouteProp = RouteProp<RootStackParamList, 'PgDetails'>;
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-// Function to detect if Android has traditional navigation bar
-const hasTraditionalNavigationBar = () => {
-  if (Platform.OS !== 'android') return false;
-  
-  const { height, width } = Dimensions.get('window');
-  const { height: screenHeight, width: screenWidth } = Dimensions.get('screen');
-  
-  // If screen dimensions don't match window dimensions, 
-  // it means there's a navigation bar taking up space
-  const hasNavigationBar = screenHeight !== height || screenWidth !== width;
-  
-  return hasNavigationBar;
-};
+
 
 // Home Screen Component
 function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
@@ -53,7 +42,6 @@ function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
   const [suggestions, setSuggestions] = useState<PgData[]>([]);
   const [nearestPg, setNearestPg] = useState<PgData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [hasNavBar, setHasNavBar] = useState(hasTraditionalNavigationBar());
 
   const scrollViewRef = useRef<ScrollView>(null);
 
@@ -110,18 +98,7 @@ function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
     loadData();
   }, []);
 
-  // Handle orientation changes and navigation bar detection
-  useEffect(() => {
-    const handleOrientationChange = () => {
-      setHasNavBar(hasTraditionalNavigationBar());
-    };
 
-    const subscription = Dimensions.addEventListener('change', handleOrientationChange);
-    
-    return () => {
-      subscription?.remove();
-    };
-  }, []);
 
   const allData = [...suggestions, ...nearestPg];
 
@@ -379,19 +356,6 @@ function HomeScreen({ navigation }: { navigation: HomeScreenNavigationProp }) {
           </>
         )}
       </ScrollView>
-      
-      {/* White space for Android navigation bar */}
-      {hasNavBar && (
-        <View style={{ 
-          height: 50, 
-          backgroundColor: 'white',
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 10
-        }} />
-      )}
     </View>
   );
 }
@@ -406,6 +370,13 @@ function DetailsScreen({ route, navigation }: { route: DetailsScreenRouteProp; n
 }
 
 export default function App() {
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      // Set navigation bar style for Android
+      NavigationBar.setBackgroundColorAsync('#E4E2DF');
+    }
+  }, []);
+
   return (
     <SafeAreaProvider>
       <NavigationContainer>
